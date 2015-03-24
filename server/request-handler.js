@@ -11,14 +11,16 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var storage = {results:[]};
 
 exports.requestHandler = function(request, response) {
-  var storage = {results:[{user:"trevor",
-                      room: "lobby",
-                      text: "hello neighbors"},
-                      {user:"yoda",
-                      room: "dagoba",
-                      text: "use the force"}]}; //will all the messages will eventually be stored
+  // var storage = {results:[{user:"trevor",
+  //                     room: "lobby",
+  //                     text: "hello neighbors"},
+  //                     {user:"yoda",
+  //                     room: "dagoba",
+  //                     text: "use the force"}]}; //will all the messages will eventually be stored
+
 
   // Request and Response come from node's http module.
   //
@@ -42,15 +44,13 @@ exports.requestHandler = function(request, response) {
   //GET - give last 100 arrays in collection
   if(request.method === "GET"){
 
-
-
     var statusCode = 200;
 
     var headers = defaultCorsHeaders;
 
     headers['Content-Type'] = "text/plain";
     response.writeHead(statusCode, headers);
-
+    console.log( "get this " + JSON.stringify(storage) );
     response.write(JSON.stringify(storage));
 
     response.end();
@@ -63,12 +63,14 @@ exports.requestHandler = function(request, response) {
   //storage.push(response)
 
   if(request.method === "POST"){
+    var buffer = '';
 // {"username":"dsa","text":"sfad","roomname":"lobby"}
+    request.on('data', function(chunk) {
+      buffer += chunk.toString();
 
-    // request.on('data', function(chunk) {
-    //   console.log('Recieved body data: ' + chunk.toString());
-    //   storage[results].push(chunk);
-    // });
+      //console.log(storage.results.length)
+      //console.log(storage.results);
+    });
 
     var statusCode = 201;
 
@@ -76,12 +78,15 @@ exports.requestHandler = function(request, response) {
 
     headers['Content-Type'] = "text/plain";
 
-    // response.on('end', function() {
-    //   response.writeHead(statusCode, headers);
-    //   response.end();
-    // });
-    response.writeHead(statusCode, headers);
-    response.end();
+    request.on('end', function() {
+      console.log(buffer);
+      console.log(storage['results']);
+      storage["results"].push(JSON.parse(buffer));
+      console.log(storage['results']);
+      response.writeHead(statusCode, headers);
+      response.end();
+    });
+
     return
 
   }
