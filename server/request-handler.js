@@ -70,23 +70,23 @@ exports.requestHandler = function(request, response) {
 
 
 
-   // if(parsedUrl.pathname.match(pathName)){   //good data case
+   if(parsedUrl.pathname.match(pathName)) {   //good data case
   // console.log("paths match");
       var statusCode = 200;
 
       response.writeHead(statusCode, headers);
       console.log( "get this " + JSON.stringify(storage) );
-      response.write(JSON.stringify(storage));
+
+      //response.write(JSON.stringify(storage));
+      response.end(JSON.stringify(storage));
+
+
+   } else {
+      var statusCode = 404;     //DNE bad data 404 Case
+      response.writeHead(statusCode, headers);
+      //console.log( "404 Error " + JSON.stringify(storage) );
       response.end();
-
-
-   // }
-    // else{
-    //   var statusCode = 404;     //DNE bad data 404 Case
-    //   response.writeHead(statusCode, headers);
-    //   //console.log( "404 Error " + JSON.stringify(storage) );
-    //   response.end();
-    // }
+    }
 
 
   }
