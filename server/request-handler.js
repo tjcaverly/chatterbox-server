@@ -46,31 +46,47 @@ exports.requestHandler = function(request, response) {
   if(request.method === "GET"){
 
     var parsedUrl = url.parse(request.url);
-    console.log(parsedUrl);
+
+    //read the variable for the GOOD path
+    //set here and make more arbitrary
+    var tempPath = parsedUrl.pathname.split("/"); //array of strings prev split by slashes
+   // console.log(tempPath);
+
     var pathName = /^\/classes.*/;  //classes/*
-    //console.log(parsedUrl);
+
     var headers = defaultCorsHeaders;
     headers['Content-Type'] = "text/plain";
 
-    if(parsedUrl.pathname.match(pathName)){   //good data case
+    // baseURL     = /classes/        //This is ALSO arbitrary
+    // sampleURL1  = /classes/room1
+    // sampleURL2  = /classes/room2
+    // sampleURL3  = /classes/room1/lobby
+    // falseURL1   = /badplace/room1
+    // falseURL2   = /class/room1
+    // falseURL3 = /badplace/classes
+
+    // maybe load array =[]
+    //with strings between / var = "stuffstuff" /
+
+
+
+   // if(parsedUrl.pathname.match(pathName)){   //good data case
   // console.log("paths match");
       var statusCode = 200;
 
       response.writeHead(statusCode, headers);
       console.log( "get this " + JSON.stringify(storage) );
       response.write(JSON.stringify(storage));
-
       response.end();
-      return
 
-    }
-    else{
-      var statusCode = 404;     //DNE bad data 404 Case
-      response.writeHead(statusCode, headers);
-      //console.log( "404 Error " + JSON.stringify(storage) );
-      response.end();
-      return;
-    }
+
+   // }
+    // else{
+    //   var statusCode = 404;     //DNE bad data 404 Case
+    //   response.writeHead(statusCode, headers);
+    //   //console.log( "404 Error " + JSON.stringify(storage) );
+    //   response.end();
+    // }
 
 
   }
@@ -96,10 +112,10 @@ exports.requestHandler = function(request, response) {
     headers['Content-Type'] = "text/plain";
 
     request.on('end', function() {
-      console.log(buffer);
-      console.log(storage['results']);
+    //  console.log(buffer);
+    //  console.log(storage['results']);
       storage["results"].push(JSON.parse(buffer));
-      console.log(storage['results']);
+    //  console.log(storage['results']);
       response.writeHead(statusCode, headers);
       response.end();
     });
@@ -107,13 +123,15 @@ exports.requestHandler = function(request, response) {
     return
 
   }
-  var statusCode = 200;
 
-  var headers = defaultCorsHeaders;
 
-  headers['Content-Type'] = "text/plain";
-  response.writeHead(statusCode, headers);
-  response.end("Hello, World!");
+  // var statusCode = 200;
+
+  // var headers = defaultCorsHeaders;
+
+  // headers['Content-Type'] = "text/plain";
+  // response.writeHead(statusCode, headers);
+  // response.end("Hello, World!");
 
 // sample post info  url: app.server,
 //         type: 'POST',
