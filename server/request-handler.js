@@ -14,6 +14,7 @@ this file and include it in basic-server.js so that it actually works.
 var url = require('url');
 var storage = {results:[]};
 var counter = 0;
+var validPaths = {"classes":true}
 
 exports.requestHandler = function(request, response) {
   // var storage = {results:[{user:"trevor",
@@ -39,57 +40,30 @@ exports.requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
-
-
+  var headers = defaultCorsHeaders;
+  headers['Content-Type'] = "text/plain"
 //If statement based on the method type (GET or POST)
 
   //GET - give last 100 arrays in collection
   if(request.method === "GET"){
-
-    var parsedUrl = url.parse(request.url);
-
-    //read the variable for the GOOD path
-    //set here and make more arbitrary
-    var tempPath = parsedUrl.pathname.split("/"); //array of strings prev split by slashes
-   // console.log(tempPath);
-
-    var pathName = /^\/classes.*/;  //classes/*
-
-    var headers = defaultCorsHeaders;
     headers['Content-Type'] = "application/json";
+    var parsedUrl = url.parse(request.url);
+    var tempPath = parsedUrl.pathname.split("/"); //array of strings prev split by slashes
 
-    // baseURL     = /classes/        //This is ALSO arbitrary
-    // sampleURL1  = /classes/room1
-    // sampleURL2  = /classes/room2
-    // sampleURL3  = /classes/room1/lobby
-    // falseURL1   = /badplace/room1
-    // falseURL2   = /class/room1
-    // falseURL3 = /badplace/classes
+    // var pathName = /^\/classes.*/; //this works but trying for more robust solution
 
-    // maybe load array =[]
-    //with strings between / var = "stuffstuff" /
+    if(tempPath[1] in validPaths) {
 
-
-
-   if(parsedUrl.pathname.match(pathName)) {   //good data case
-  // console.log("paths match");
       var statusCode = 200;
-
       response.writeHead(statusCode, headers);
-      // console.log( "get this " + JSON.stringify(storage) );
-
-      //response.write(JSON.stringify(storage));
       response.end(JSON.stringify(storage));
 
 
-   } else {
-      var statusCode = 404;     //DNE bad data 404 Case
+    } else {
+      var statusCode = 404;
       response.writeHead(statusCode, headers);
-      //console.log( "404 Error " + JSON.stringify(storage) );
       response.end();
     }
-
-
   }
 
 
@@ -98,82 +72,35 @@ exports.requestHandler = function(request, response) {
 
   if(request.method === "POST"){
     var buffer = '';
-// {"username":"dsa","text":"sfad","roomname":"lobby"}
+
     request.on('data', function(chunk) {
       buffer += chunk.toString();
-
-      //console.log(storage.results.length)
-      //console.log(storage.results);
     });
 
     var statusCode = 201;
 
-    var headers = defaultCorsHeaders;
-
-    headers['Content-Type'] = "text/plain";
-
     request.on('end', function() {
-    //  console.log(buffer);
-    //  console.log(storage['results']);
+
       var tempBuffer = JSON.parse(buffer);
       tempBuffer["objectId"] = counter;
       console.log(tempBuffer);
       storage["results"].push(tempBuffer);
       counter++;
-    //  console.log(storage['results']);
+
       response.writeHead(statusCode, headers);
       response.end();
     });
-
-    return
-
   }
 
   if(request.method === "OPTIONS"){
 
     var statusCode = 200;
 
-    var headers = defaultCorsHeaders;
+    response.writeHead(statusCode, headers);
+    response.end();
 
-    headers['Content-Type'] = "text/plain";
-
-    // request.on('end', function() {
-
-      response.writeHead(statusCode, headers);
-      response.end();
-    // });
-
-    return
 
   }
-
-
-  // var statusCode = 200;
-
-  // var headers = defaultCorsHeaders;
-
-  // headers['Content-Type'] = "text/plain";
-  // response.writeHead(statusCode, headers);
-  // response.end("Hello, World!");
-
-// sample post info  url: app.server,
-//         type: 'POST',
-//         data: JSON.stringify(data),
-//         contentType: 'application/json',
-
-
-
-  //OPTIONS ? ignore?
-
-//sample response/header info
-// [ 'ConTent-Length', '123456',
-//   'content-LENGTH', '123',
-//   'content-type', 'text/plain',
-//   'CONNECTION', 'keep-alive',
-//   'Host', 'mysite.com',
-//   'accepT', '*/*' ]
-
-
 
 };
 
