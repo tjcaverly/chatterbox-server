@@ -46,41 +46,32 @@ exports.requestHandler = function(request, response) {
   if(request.method === "GET"){
 
     var parsedUrl = url.parse(request.url);
-    var pathName = /^\/classes/;
     console.log(parsedUrl);
+    var pathName = /^\/classes.*/;  //classes/*
+    //console.log(parsedUrl);
     var headers = defaultCorsHeaders;
     headers['Content-Type'] = "text/plain";
 
     if(parsedUrl.pathname.match(pathName)){   //good data case
-      console.log("paths match");
-    var statusCode = 200;
+  // console.log("paths match");
+      var statusCode = 200;
 
-    response.writeHead(statusCode, headers);
-    console.log( "get this " + JSON.stringify(storage) );
-    response.write(JSON.stringify(storage));
+      response.writeHead(statusCode, headers);
+      console.log( "get this " + JSON.stringify(storage) );
+      response.write(JSON.stringify(storage));
 
-    response.end();
-    return
+      response.end();
+      return
 
     }
     else{
       var statusCode = 404;     //DNE bad data 404 Case
       response.writeHead(statusCode, headers);
-      console.log( "404 Error " + JSON.stringify(storage) );
+      //console.log( "404 Error " + JSON.stringify(storage) );
       response.end();
       return;
     }
 
-    // var statusCode = 200;
-    // var headers = defaultCorsHeaders;
-
-    // headers['Content-Type'] = "text/plain";
-    // response.writeHead(statusCode, headers);
-    // console.log( "get this " + JSON.stringify(storage) );
-    // response.write(JSON.stringify(storage));
-
-    // response.end();
-    // return
 
   }
 
