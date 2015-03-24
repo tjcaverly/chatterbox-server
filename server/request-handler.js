@@ -11,6 +11,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var url = require('url');
 var storage = {results:[]};
 
 exports.requestHandler = function(request, response) {
@@ -44,17 +45,42 @@ exports.requestHandler = function(request, response) {
   //GET - give last 100 arrays in collection
   if(request.method === "GET"){
 
+    var parsedUrl = url.parse(request.url);
+    var pathName = /^\/classes/;
+    console.log(parsedUrl);
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = "text/plain";
+
+    if(parsedUrl.pathname.match(pathName)){   //good data case
+      console.log("paths match");
     var statusCode = 200;
 
-    var headers = defaultCorsHeaders;
-
-    headers['Content-Type'] = "text/plain";
     response.writeHead(statusCode, headers);
     console.log( "get this " + JSON.stringify(storage) );
     response.write(JSON.stringify(storage));
 
     response.end();
     return
+
+    }
+    else{
+      var statusCode = 404;     //DNE bad data 404 Case
+      response.writeHead(statusCode, headers);
+      console.log( "404 Error " + JSON.stringify(storage) );
+      response.end();
+      return;
+    }
+
+    // var statusCode = 200;
+    // var headers = defaultCorsHeaders;
+
+    // headers['Content-Type'] = "text/plain";
+    // response.writeHead(statusCode, headers);
+    // console.log( "get this " + JSON.stringify(storage) );
+    // response.write(JSON.stringify(storage));
+
+    // response.end();
+    // return
 
   }
 
