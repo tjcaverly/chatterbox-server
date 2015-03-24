@@ -13,6 +13,7 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var url = require('url');
 var storage = {results:[]};
+var counter = 0;
 
 exports.requestHandler = function(request, response) {
   // var storage = {results:[{user:"trevor",
@@ -55,7 +56,7 @@ exports.requestHandler = function(request, response) {
     var pathName = /^\/classes.*/;  //classes/*
 
     var headers = defaultCorsHeaders;
-    headers['Content-Type'] = "text/plain";
+    headers['Content-Type'] = "application/json";
 
     // baseURL     = /classes/        //This is ALSO arbitrary
     // sampleURL1  = /classes/room1
@@ -75,7 +76,7 @@ exports.requestHandler = function(request, response) {
       var statusCode = 200;
 
       response.writeHead(statusCode, headers);
-      console.log( "get this " + JSON.stringify(storage) );
+      // console.log( "get this " + JSON.stringify(storage) );
 
       //response.write(JSON.stringify(storage));
       response.end(JSON.stringify(storage));
@@ -114,11 +115,33 @@ exports.requestHandler = function(request, response) {
     request.on('end', function() {
     //  console.log(buffer);
     //  console.log(storage['results']);
-      storage["results"].push(JSON.parse(buffer));
+      var tempBuffer = JSON.parse(buffer);
+      tempBuffer["objectId"] = counter;
+      console.log(tempBuffer);
+      storage["results"].push(tempBuffer);
+      counter++;
     //  console.log(storage['results']);
       response.writeHead(statusCode, headers);
       response.end();
     });
+
+    return
+
+  }
+
+  if(request.method === "OPTIONS"){
+
+    var statusCode = 200;
+
+    var headers = defaultCorsHeaders;
+
+    headers['Content-Type'] = "text/plain";
+
+    // request.on('end', function() {
+
+      response.writeHead(statusCode, headers);
+      response.end();
+    // });
 
     return
 
