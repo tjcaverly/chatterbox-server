@@ -13,8 +13,19 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var url = require('url');
 var storage = {results:[]};
-var counter = 0;
 var validPaths = {"classes":true}
+var fs = require("fs");
+var counter = 0;
+fs.readFile('messages.txt', function read(err, data) {
+  if (err) {
+    throw err;
+  }
+  storage = JSON.parse(data);
+  console.log(storage['results']);
+  counter = storage.results[storage.results.length-1]['objectId']+1;
+  console.log(counter);
+})
+
 
 exports.requestHandler = function(request, response) {
   // var storage = {results:[{user:"trevor",
@@ -42,22 +53,18 @@ exports.requestHandler = function(request, response) {
   console.log("Serving request type " + request.method + " for url " + request.url);
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "text/plain"
-//If statement based on the method type (GET or POST)
 
   //GET - give last 100 arrays in collection
   if(request.method === "GET"){
     headers['Content-Type'] = "application/json";
     var parsedUrl = url.parse(request.url);
-    var tempPath = parsedUrl.pathname.split("/"); //array of strings prev split by slashes
+    var tempPath = parsedUrl.pathname.slice(1).split("/")[0];
 
-    // var pathName = /^\/classes.*/; //this works but trying for more robust solution
-
-    if(tempPath[1] in validPaths) {
+    if(tempPath in validPaths) {
 
       var statusCode = 200;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(storage));
-
 
     } else {
       var statusCode = 404;
@@ -65,8 +72,6 @@ exports.requestHandler = function(request, response) {
       response.end();
     }
   }
-
-
   //POST - add text from message to collection ID++
   //storage.push(response)
 
@@ -85,6 +90,7 @@ exports.requestHandler = function(request, response) {
       tempBuffer["objectId"] = counter;
       console.log(tempBuffer);
       storage["results"].push(tempBuffer);
+      fs.writeFile("messages.txt", JSON.stringify(storage));
       counter++;
 
       response.writeHead(statusCode, headers);
